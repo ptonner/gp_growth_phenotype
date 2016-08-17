@@ -1,9 +1,10 @@
 import matplotlib.pyplot as plt
+import numpy as np
 import scipy, GPy, os, ast
 import pandas as pd
 import matplotlib as mpl
 
-meta = data = parent = condition = None
+meta = data = parent = condition = control = None
 
 """
 *************************
@@ -28,26 +29,48 @@ Data
 *************************
 """
 
-def setGlobals(data=None,meta=None,parent=None,condition=None):
-	if not data is None:
+def setGlobals(_data=None,_meta=None,_parent=None,_condition=None,_control=None):
+	if not _data is None:
 		global data
-		data = data
+		data = _data
 
-	if not meta is None:
+	if not _meta is None:
 		global meta
-		meta = meta
+		meta = _meta
 
-	if not parent is None:
+	if not _parent is None:
 		global parent
-		parent = parent
+		parent = _parent
 
-	if not condition is None:
+	if not _condition is None:
 		global condition
-		condition = condition
+		condition = _condition
+	
+	if not _control is None:
+		global control
+		control = _control
+		
+def getData(select,fmt='standard'):
+	temp = data.loc[:,meta.index[select]]
+	temp2 = meta.loc[select,:]
+
+	if fmt == 'standard':
+		return temp,temp2
+	pivot = pd.concat((temp2,temp.T),1)    
+	if fmt == 'pivot':
+		return pivot
+
+	tidy = pd.melt(pivot,id_vars=meta.columns.tolist(),value_vars=data.index.tolist(),
+		value_name='OD',var_name='time')
+
+	return tidy
 
 def tidyfy(pivot):
 	return pd.melt(pivot,id_vars=meta.columns.tolist(),value_vars=data.index.tolist(),
 		value_name='OD',var_name='time')
+		
+def pivotify(temp,temp2):
+	return pd.concat((temp2,temp.T),1)
 
 def buildTable(results):
 
@@ -152,7 +175,7 @@ def runTest(select,numPerm=10,timeThin=3,dims=[],nullDim='strain-regression',col
 	return actualBf, perms
 
 def testMutants(mutants,numPerm=10,timeThin=4,dims=[],nullDim='strain-regression'):
-	results = results
+	results = {}
 
 	for i,m in enumerate(mutants):
 
@@ -160,8 +183,8 @@ def testMutants(mutants,numPerm=10,timeThin=4,dims=[],nullDim='strain-regression
 			print 1.*i/len(mutants),m
 
 		select = ((meta.Condition==control) | (meta.Condition==condition)) & (meta.strain.isin([parent,m]))
-		if m in resultsParaquat:
-			if len(resultsParaquat[m][1]) < numPerm:
+		if m in results:
+			if len(results[m][1]) < numPerm:
 				results[m][1].extend(runTest(select,timeThin=timeThin,
 					dims=dims,nullDim=nullDim,
 					numPerm=numPerm-len(results[m][1]))[1])
