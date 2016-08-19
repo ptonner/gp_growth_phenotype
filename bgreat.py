@@ -159,7 +159,7 @@ def runTest(select,numPerm=10,timeThin=3,dims=[],nullDim='strain-regression',col
 	xnull = xnull.values
 
 	y = tidy.OD.values[:,None]
-	k = GPy.kern.RBF(xnull.shape[1])
+	k = GPy.kern.RBF(xnull.shape[1],ARD=True)
 	gp = GPy.models.GPRegression(xnull,y,k)
 	gp.optimize()
 
