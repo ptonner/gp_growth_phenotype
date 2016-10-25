@@ -24,7 +24,12 @@ Code repository corresponding to paper "Detecting differential growth of microbi
 
 ## Examples
 
-Input to the B-GREAT method should come from two dataframes, *data* (n x p) and *meta* (p x k) for n time-points, p time-course measurements (replicates) and k columns of metadata. The index of *data* is assumed to be the time column. Each row of *meta* should correspond to a single column of *data*, e.g. the number of columns in *data* should equal the number of rows in *meta*. 
+Input to the B-GREAT method should come from two dataframes, *data* (n x p) and *meta* (p x k) where n, p, and k are:
+* n: number of time-points
+* p: number of time-course measurements (replicates)
+* k: number of covariates to be tested, e.g. strain, condition.
+
+The index of *data* is assumed to be the time column. Each row of *meta* should correspond to a single column of *data*, e.g. the number of columns in *data* should equal the number of rows in *meta*. 
 
 ```python
 import pandas as pd
