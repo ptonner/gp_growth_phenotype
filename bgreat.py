@@ -12,7 +12,7 @@ Plotting
 *************************
 """
 
-def plotSamples(samples,x=None,color='b',colors=None,plotMethod=None,*args,**kwargs):
+def plotSamples(samples,x=None,color='b',colors=None,plotMethod=None,label=None,*args,**kwargs):
 	if x is None:
 		x = range(samples.shape[0])
 	if colors is None:
@@ -21,7 +21,11 @@ def plotSamples(samples,x=None,color='b',colors=None,plotMethod=None,*args,**kwa
 		plotMethod = plt.plot
 
 	for i,c in zip(range(samples.shape[1]),colors):
-		plotMethod(x,samples[:,i],color=c,*args,**kwargs)
+		if not label is None:
+			plotMethod(x,samples[:,i],color=c,label=label,*args,**kwargs)
+			label = None
+		else:
+			plotMethod(x,samples[:,i],color=c,*args,**kwargs)
 
 """
 *************************
@@ -34,6 +38,8 @@ def setGlobals(_data=None,_meta=None,_parent=None,_condition=None,_control=None)
 		global data
 		data = _data
 
+		data.columns = range(data.shape[1])
+
 	if not _meta is None:
 		global meta
 		meta = _meta
@@ -45,18 +51,18 @@ def setGlobals(_data=None,_meta=None,_parent=None,_condition=None,_control=None)
 	if not _condition is None:
 		global condition
 		condition = _condition
-	
+
 	if not _control is None:
 		global control
 		control = _control
-		
+
 def getData(select,fmt='standard'):
 	temp = data.loc[:,meta.index[select]]
 	temp2 = meta.loc[select,:]
 
 	if fmt == 'standard':
 		return temp,temp2
-	pivot = pd.concat((temp2,temp.T),1)    
+	pivot = pd.concat((temp2,temp.T),1)
 	if fmt == 'pivot':
 		return pivot
 
@@ -68,7 +74,7 @@ def getData(select,fmt='standard'):
 def tidyfy(pivot):
 	return pd.melt(pivot,id_vars=meta.columns.tolist(),value_vars=data.index.tolist(),
 		value_name='OD',var_name='time')
-		
+
 def pivotify(temp,temp2):
 	return pd.concat((temp2,temp.T),1)
 
@@ -122,6 +128,30 @@ def permTest(pivot,nullLoglikelihood,numPerm=10,permCol='strain-regression',dims
 
 	return perms
 
+def selectStrain(m):
+	return ((meta.Condition==control) | (meta.Condition==condition)) & (meta.strain.isin([parent,m]))
+
+def buildGP(select,timeThin=4,dims=[]):
+
+	temp = data.loc[:,meta.index[select]]
+	temp2 = meta.loc[select,:]
+
+	pivot = pivotify(temp,temp2) #pd.concat((temp2,temp.T),1)
+	tidy = tidyfy(pivot)
+
+	timeSelect = tidy.time.unique()[::timeThin]
+	tidy = tidy[tidy.time.isin(timeSelect)]
+
+	dims = ['time','strain-regression']+dims
+
+	x = tidy[dims]
+	x = x.values
+	y = tidy.OD.values[:,None]
+	k = GPy.kern.RBF(x.shape[1],ARD=True)
+	gp = GPy.models.GPRegression(x,y,k)
+	gp.optimize()
+	return gp
+
 def runTest(select,numPerm=10,timeThin=3,dims=[],nullDim='strain-regression',colTransform={}):
 	#select = (meta.Condition==control) & (meta.strain.isin([parent,m]))
 
@@ -143,6 +173,7 @@ def runTest(select,numPerm=10,timeThin=3,dims=[],nullDim='strain-regression',col
 	x = x.values
 	y = tidy.OD.values[:,None]
 	k = GPy.kern.RBF(x.shape[1],ARD=True)
+
 	gp = GPy.models.GPRegression(x,y,k)
 	gp.optimize()
 
@@ -152,11 +183,9 @@ def runTest(select,numPerm=10,timeThin=3,dims=[],nullDim='strain-regression',col
 	_dims.remove(nullDim)
 
 	xnull = tidy[_dims]
-	if xnull.shape[1] == 1:
-		xnull = xnull[:,None]
-	#if 'strain' in dims:
-	#    xnull.strain = (xnull.strain!=parent).astype(int)
 	xnull = xnull.values
+	if xnull.ndim == 1:
+		xnull = xnull[:,None]
 
 	y = tidy.OD.values[:,None]
 	k = GPy.kern.RBF(xnull.shape[1],ARD=True)
