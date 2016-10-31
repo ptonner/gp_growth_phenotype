@@ -52,7 +52,7 @@ For a single effect on growth, a single column in _meta_ will be used for testin
 ```python
 parent = 'my-parent'
 meta['strain-regression'] = (meta.strain!=parent).astype(int)
-bgreat.setGlobals(_parent=parent,_meta=meta)
+bgreat.setGlobals(_parent=parent,_control=control)
 ```
 
 A list of mutants can then be given to calculate the Bayes factor score, with permutation testing and FDR calculation.
