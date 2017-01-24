@@ -120,7 +120,9 @@ def permTest(pivot,nullLoglikelihood,numPerm=10,permCol='strain-regression',dims
 		x = x.values
 
 		y = tidy.OD.values[:,None]
-		k = GPy.kern.RBF(x.shape[1],ARD=True)
+
+		k = buildKernel(x.shape[1])
+		# k = GPy.kern.RBF(x.shape[1],ARD=True)
 
 		gp = GPy.models.GPRegression(x,y,k)
 		gp.optimize()
@@ -147,12 +149,32 @@ def buildGP(select,timeThin=4,dims=[]):
 	x = tidy[dims]
 	x = x.values
 	y = tidy.OD.values[:,None]
-	k = GPy.kern.RBF(x.shape[1],ARD=True)
+
+	k = buildKernel(x.shape[1])
+	# k = GPy.kern.RBF(x.shape[1],ARD=True)
+
 	gp = GPy.models.GPRegression(x,y,k)
 	gp.optimize()
 	return gp
 
-def runTest(select,numPerm=10,timeThin=3,dims=[],nullDim='strain-regression',colTransform={}):
+def buildKernel(size=1):
+
+	# RBF(time) * (RBF(e1) + RBF(e2) + ...)
+
+	ret = GPy.kern.RBF(1,active_dims=[0])
+	ksum = None
+
+	for i in range(1,size):
+		if ksum is None:
+			ksum = GPy.kern.RBF(1,active_dims=[i])
+		else:
+			ksum += GPy.kern.RBF(1,active_dims=[i])
+
+	if ksum is None:
+		return ret
+	return ret*ksum
+
+def runTest(select,numPerm=10,timeThin=3,dims=['time','strain-regression'],nullDim='strain-regression',colTransform={}):
 	#select = (meta.Condition==control) & (meta.strain.isin([parent,m]))
 
 	temp = data.loc[:,meta.index[select]]
@@ -166,13 +188,13 @@ def runTest(select,numPerm=10,timeThin=3,dims=[],nullDim='strain-regression',col
 	timeSelect = tidy.time.unique()[::timeThin]
 	tidy = tidy[tidy.time.isin(timeSelect)]
 
-	dims = ['time','strain-regression']+dims
-
 	x = tidy[dims]
 	# x.strain = (x.strain!=parent).astype(int)
 	x = x.values
 	y = tidy.OD.values[:,None]
-	k = GPy.kern.RBF(x.shape[1],ARD=True)
+
+	k = buildKernel(x.shape[1])
+	# k = GPy.kern.RBF(x.shape[1],ARD=True)
 
 	gp = GPy.models.GPRegression(x,y,k)
 	gp.optimize()
@@ -188,7 +210,10 @@ def runTest(select,numPerm=10,timeThin=3,dims=[],nullDim='strain-regression',col
 		xnull = xnull[:,None]
 
 	y = tidy.OD.values[:,None]
-	k = GPy.kern.RBF(xnull.shape[1],ARD=True)
+
+	k = buildKernel(xnull.shape[1])
+	# k = GPy.kern.RBF(xnull.shape[1],ARD=True)
+
 	gp = GPy.models.GPRegression(xnull,y,k)
 	gp.optimize()
 
