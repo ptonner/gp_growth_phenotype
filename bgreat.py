@@ -254,4 +254,4 @@ def testMutantControl(mutants,**kwargs):
 	return testMutants(mutants,**kwargs)
 
 def testMutantCondition(mutants,**kwargs):
-	return testMutants(mutants,dims=['condition','interaction'],nullDim='interaction',**kwargs)
+	return testMutants(mutants,dims=['time','strain-regression','condition','interaction'],nullDim='interaction',**kwargs)
