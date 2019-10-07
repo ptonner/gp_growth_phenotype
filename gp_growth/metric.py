@@ -1,6 +1,8 @@
+from __future__ import absolute_import
 import numpy as np
 from scipy import stats
-from data import growth
+from .data import growth
+from six.moves import zip
 
 #########
 # utility functions

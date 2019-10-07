@@ -1,9 +1,14 @@
+from __future__ import absolute_import
+from __future__ import print_function
 import matplotlib.pyplot as plt
 import seaborn as sns
 import os, time, datetime
 import pandas as pd
 import numpy as np
 import itertools
+import six
+from six.moves import range
+from six.moves import zip
 
 class GrowthData(object):
 
@@ -64,7 +69,7 @@ class GrowthData(object):
 			condition = condition.tolist()
 
 		if title_index is None:
-			title_index = range(len(condition))
+			title_index = list(range(len(condition)))
 
 		if newFig is None:
 			newFig = True
@@ -82,9 +87,9 @@ class GrowthData(object):
 		if colorby:
 			categories = tuple(self.key[colorby].unique())
 			if colors is None:
-				color_lookup = dict(zip(categories,sns.color_palette("hls", len(categories))))
+				color_lookup = dict(list(zip(categories,sns.color_palette("hls", len(categories)))))
 			else:
-				color_lookup = dict(zip(categories,colors))
+				color_lookup = dict(list(zip(categories,colors)))
 
 		ncols = min(ncols,groups.ngroups)
 		nrows = 1
@@ -97,12 +102,12 @@ class GrowthData(object):
 			plt.figure(figsize=(ncols*figWidth,nrows*figHeight))
 
 		if groups.ngroups > maxgroups:
-			print "Error, number of groups (%d) is greater than max (%d)." % (groups.ngroups,maxgroups)
+			print("Error, number of groups (%d) is greater than max (%d)." % (groups.ngroups,maxgroups))
 			return
 
-		groupList = list(groups.groups.iteritems())
+		groupList = list(six.iteritems(groups.groups))
 		if groupOrder is None:
-			groupOrder = range(len(groupList))
+			groupOrder = list(range(len(groupList)))
 		for i,j in enumerate(groupOrder):
 			val = groupList[j]
 
@@ -119,10 +124,10 @@ class GrowthData(object):
 
 			if not fixed_colors:
 				categories = tuple(temp_key[colorby].unique())
-				color_lookup = dict(zip(categories,sns.color_palette("hls", len(categories))))
+				color_lookup = dict(list(zip(categories,sns.color_palette("hls", len(categories)))))
 
 			if colorby:
-				color_usage = dict(zip(categories,[False]*len(categories)))
+				color_usage = dict(list(zip(categories,[False]*len(categories))))
 
 			#print temp_key.Well,temp_data.head()
 
@@ -132,7 +137,7 @@ class GrowthData(object):
 				ylim = (min(temp_data.min()),max(temp_data.max()))
 
 			if colorby:
-				for well,temp_od in temp_data.iteritems():
+				for well,temp_od in six.iteritems(temp_data):
 
 					#remove na's
 					select = ~temp_od.isnull()
@@ -152,7 +157,7 @@ class GrowthData(object):
 				if len(categories) <= max_legend:
 					plt.legend(loc="best",**legend_kwargs)
 			else:
-				for well,temp_od in temp_data.iteritems():
+				for well,temp_od in six.iteritems(temp_data):
 
 					#remove na's
 					select = ~temp_od.isnull()
@@ -263,7 +268,7 @@ class GrowthData(object):
 			x = []
 			y = []
 
-			for vals,ind in g.groups.iteritems():
+			for vals,ind in six.iteritems(g.groups):
 				select = reg[groupby] == vals
 				temp = reg[select]
 				x.append(reg[['time']+meta])
@@ -308,7 +313,7 @@ class GrowthData(object):
 
 		selection = [True]*self.key.shape[0]
 
-		for k,v in kwargs.iteritems():
+		for k,v in six.iteritems(kwargs):
 			if k in key_copy.columns:
 				# if v is np.nan:
 				# if np.isnan(v):
@@ -317,7 +322,7 @@ class GrowthData(object):
 					if np.isnan(v):
 						selection = np.all((selection,key_copy[k].isnull()),0)
 						checked = True
-				except TypeError,e:
+				except TypeError as e:
 					pass
 				if not checked:
 					selection = np.all((selection,key_copy[k]==v),0)
@@ -368,7 +373,7 @@ class GrowthData(object):
 
 		time = self.data.time.iloc[:ind]
 
-		for k,index in group.groups.iteritems():
+		for k,index in six.iteritems(group.groups):
 		    temp = self.data.loc[:,index]
 		    od = temp.values[:ind,:].ravel()
 		    
@@ -380,13 +385,13 @@ class GrowthData(object):
 def _parse_time(t):
 	try:
 		return time.struct_time(time.strptime(t,'%H:%M:%S'))
-	except ValueError, e:
+	except ValueError as e:
 		try:
 			t = time.strptime(t,'%d %H:%M:%S')
 			t = list(t)
 			t[2]+=1
 			return time.struct_time(t)
-		except ValueError, e:
+		except ValueError as e:
 			raise Exception("Time format unknown")
 
 def _expand_data_row(r,thinning=0):

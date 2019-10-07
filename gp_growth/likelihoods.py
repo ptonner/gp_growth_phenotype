@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 from GPy import likelihoods
 import numpy as np
 

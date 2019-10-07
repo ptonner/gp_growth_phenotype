@@ -1,6 +1,8 @@
+from __future__ import absolute_import
 import numpy as np
 import warnings
 import scipy
+from six.moves import range
 
 class MultivariateNormal(object):
 
@@ -46,7 +48,7 @@ class MultivariateNormal(object):
 		import matplotlib.pyplot as plt
 
 		if x is None:
-			x = range(self.n)
+			x = list(range(self.n))
 		if confidence is None:
 			confidence = .95
 

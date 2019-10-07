@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+from __future__ import print_function
 from gp_growth import factory
 from gp_growth.categorical import Categorical
 import GPy
@@ -5,6 +7,7 @@ from GPy.core.parameterization import Param
 from GPy.core.parameterization.transformations import Logexp
 from GPy.kern import Kern, RBF
 import numpy as np
+from six.moves import range
 
 CP_TOL = 1e-5
 
@@ -51,7 +54,7 @@ class Changepoint(GPy.kern._src.kern.CombinationKernel):
         self.cpDim = cpDim
         if self.cpDim is None:
             self.cpDim = 0
-        self.otherDims = range(self.input_dim)
+        self.otherDims = list(range(self.input_dim))
         self.otherDims.remove(self.cpDim)
         self.otherDims = np.array(self.otherDims)
 
@@ -298,7 +301,7 @@ class ChangepointCross(GPy.kern._src.kern.CombinationKernel):
     """Kernel for points across a changepoint. K(X,Y) = kc * K1(X,cp) * K2(Y,cp) """
     
     def __init__(self,cp,kc = 1,k=1,**kwargs):
-        ad = [0] + range(2,k+1)
+        ad = [0] + list(range(2,k+1))
 
         super(ChangepointCross,self).__init__([GPy.kern.RBF(k,active_dims=ad,ARD=True,**kwargs),GPy.kern.RBF(k,active_dims=ad,ARD=True,**kwargs)],"changepoint")
         self.k = k
@@ -325,7 +328,7 @@ class ChangepointCross(GPy.kern._src.kern.CombinationKernel):
         return self.kc * self.parts[0].Kdiag(X) * self.parts[1].Kdiag(X)
     
     def update_gradients_full(self, dL_dK, X, X2=None):
-        print "cp_cross update_gradients_full"
+        print("cp_cross update_gradients_full")
         k = self.K(X,X2)*dL_dK
 #         try:
         for p in self.parts:
@@ -376,7 +379,7 @@ class ChangepointFactory(factory.Factory):
     def buildKernel(self,):
 
         k = len(self.inputDimensions) - 1
-        ad = [0] + range(2,k+1)
+        ad = [0] + list(range(2,k+1))
 
         cp = self.cp
         if self.normalize:

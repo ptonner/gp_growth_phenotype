@@ -1,9 +1,12 @@
+from __future__ import absolute_import
+from __future__ import print_function
 import pandas as pd
 from gp_growth import factory,metric,gompertz
 from gp_growth.data.growth import GrowthData
 from gp_growth.storage import mongo
 import os
 import numpy as np
+from six.moves import range
 # from matplotlib.pyplot import *
 # from scipy.optimize import curve_fit
 # from lib.gompertz import gompertz
@@ -41,7 +44,7 @@ for p in plates:
 
 		temp = GrowthData(temp,params)
 
-		print p,i,temp.data.shape
+		print(p,i,temp.data.shape)
 
 		edata = temp.getData("gp")
 
@@ -64,7 +67,7 @@ for p in plates:
 
 		params['ss_tot'] = np.sum((edata.od - edata.od.mean())**2)/edata.shape[0]
 
-		print params
+		print(params)
 
 		if output.shape[0]==0:
 			# output = pd.DataFrame(params)

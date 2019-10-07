@@ -1,9 +1,13 @@
+from __future__ import absolute_import
+from __future__ import print_function
 import pandas as pd
 import numpy as np
-from ConfigParser import ConfigParser
+from six.moves.configparser import ConfigParser
 from registry import registry
 from gp_growth import storage
 import os, gc
+from six.moves import range
+from six.moves import zip
 
 class Analysis():
 
@@ -111,16 +115,16 @@ class Analysis():
 					continue	
 
 				# build a dictionary of key-value pairs for selecting data
-				kwargs = dict(zip(self.groupby,vals))
+				kwargs = dict(list(zip(self.groupby,vals)))
 
 				temp = self.data.select(**kwargs)
 
 				if verbosity > 0:
-					print kwargs, temp.key.shape[0]
+					print(kwargs, temp.key.shape[0])
 
 				if temp.key.shape[0] > self.maxSize:
 					if verbosity > 0:
-						print "Number of samples to large (%d > %d)" % (temp.key.shape[0],self.maxSize)
+						print("Number of samples to large (%d > %d)" % (temp.key.shape[0],self.maxSize))
 					continue
 
 				regression = temp.getData("gp")
@@ -133,7 +137,7 @@ class Analysis():
 				# del temp
 				collected = gc.collect()
 				if verbosity > 0:
-					print "Garbage collector: collected %d objects." % (collected)
+					print("Garbage collector: collected %d objects." % (collected))
 
 if __name__ == "__main__":
 	import sys, getopt

@@ -1,9 +1,12 @@
 # Author: Peter Tonner (peter.tonner@duke.edu)
 
+from __future__ import absolute_import
 import GPy
 import numpy as np
 import pandas as pd
-from categorical import Categorical
+from .categorical import Categorical
+import six
+from six.moves import range
 
 class Factory(object):
 	"""Abstract factory class for defining how to contruct a GP.
@@ -88,7 +91,7 @@ class Factory(object):
 			self.seenCategories[name] = {}
 		for v in vals:
 			if not v in self.seenCategories[name]:
-				self.seenCategories[name][v] = len(self.seenCategories[name].keys())
+				self.seenCategories[name][v] = len(list(self.seenCategories[name].keys()))
 
 		temp = np.zeros(x.shape) - 1
 		for i in range(temp.shape[0]):
@@ -123,9 +126,9 @@ class Factory(object):
 			elif k.rstrip("_min") in inputColumns:
 				dynamicMin = kwargs[k]
 
-		if len(fixedParams.keys()) < len(inputColumns) - 1:
+		if len(list(fixedParams.keys())) < len(inputColumns) - 1:
 			raise ValueError("not enough fixed inputs!")
-		elif len(fixedParams.keys()) >= len(inputColumns):
+		elif len(list(fixedParams.keys())) >= len(inputColumns):
 			raise ValueError("too many fixed inputs!")
 
 		x = np.zeros((size,len(inputColumns)),dtype=object)
@@ -190,7 +193,7 @@ class Factory(object):
 		# get previously optimized hyperparameters if they exist
 		if (not optimize) and useSaved: #(not name is None) and (name in self.savedParameters.index):
 			select = [True] * self.savedParameters.shape[0]
-			for k,v in kwargs.iteritems():
+			for k,v in six.iteritems(kwargs):
 				select = np.all((select,self.savedParameters[k]==v),0)
 			
 
@@ -248,7 +251,7 @@ class Factory(object):
 		for ind,col in enumerate(self.inputColumns()):
 			plt.subplot2grid((nrows,colspan+1),[ind,0],colspan=colspan)
 
-			plt.plot(range(self.buildInput(edata).shape[0]),self.buildInput(edata)[:,ind])
+			plt.plot(list(range(self.buildInput(edata).shape[0])),self.buildInput(edata)[:,ind])
 			plt.ylim(min(self.buildInput(edata)[:,ind])-.5,max(self.buildInput(edata)[:,ind])+.5)
 			plt.xticks([])
 			plt.yticks([])
@@ -256,7 +259,7 @@ class Factory(object):
 
 		# plot optical density
 		plt.subplot2grid((nrows,colspan+1),[ind+1,0],colspan=colspan)
-		plt.plot(range(self.buildInput(edata).shape[0]),self.buildOutput(edata))
+		plt.plot(list(range(self.buildInput(edata).shape[0])),self.buildOutput(edata))
 		plt.xticks([])
 		plt.yticks([])
 		plt.ylabel("OD",fontsize=15)
@@ -377,7 +380,7 @@ def _get_params(gp,name=None,**kwargs):
 				# params.append(p.values[ind])
 				ret["_".join([gp.likelihood.name,n])] = p.values[ind]
 
-	for k,v in kwargs.iteritems():
+	for k,v in six.iteritems(kwargs):
 		ret[k] = v
 
 	#return pd.Series(params,index=param_names)

@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+from __future__ import print_function
 from GPy.kern import Kern,RBF
 from GPy.core.parameterization.transformations import Logexp
 from GPy.core.parameterization import Param
@@ -37,15 +39,15 @@ class Categorical(Kern):
 			self.variance.gradient = np.nansum(dL_dK * np.where(X == X2.T,1,0))
 
 	def update_gradients_diag(self, dL_dKdiag, X):
-		print "update_gradients_diag"
+		print("update_gradients_diag")
 		self.variance.gradient = np.sum(dL_dKdiag * np.ones(X.shape[0]))
 
 	def gradients_X(self, dL_dK, X, X2):
-		print "gradients_X"
+		print("gradients_X")
 		if X2 is None:
 			X2 = X
 		return dL_dK * np.where(X == X2.T,1,0)
 		
 	def gradients_X_diag(self, dL_dKdiag, X):
-		print "gradients_X_diag"
+		print("gradients_X_diag")
 		return dL_dKdiag * np.ones(X.shape[0])

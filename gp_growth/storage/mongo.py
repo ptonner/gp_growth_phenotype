@@ -1,6 +1,8 @@
+from __future__ import absolute_import
 from pymongo import MongoClient
 import pandas as pd
 from ..data.growth import GrowthData
+from six.moves import range
 
 class MongoDB():
 
@@ -188,5 +190,5 @@ class MongoDB():
 				if not w[name] in ret:
 					ret[w[name]] = None
 
-		return ret.keys()
+		return list(ret.keys())
 

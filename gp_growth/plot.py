@@ -1,11 +1,15 @@
+from __future__ import absolute_import
+from __future__ import print_function
 import matplotlib.pyplot as plt
 import numpy as np
 import itertools
+from six.moves import range
+from six.moves import zip
 
 def multivariate_gaussian(x,mean,var=None,line_col="g",fill_col="g",label="",alpha=.5):
 
 	if not var is None and not mean.shape == var.shape:
-		print "Error mean and variance not same shape (",str(mean.shape),",",str(var.shape),")"
+		print("Error mean and variance not same shape (",str(mean.shape),",",str(var.shape),")")
 		return
 
 	plt.plot(x,mean,c=line_col,label=label)
@@ -53,7 +57,7 @@ def scatterplot_matrix(data, names, **kwargs):
                 ha='center', va='center')
 
     # Turn on the proper x or y axes ticks.
-    for i, j in zip(range(numvars), itertools.cycle((-1, 0))):
+    for i, j in zip(list(range(numvars)), itertools.cycle((-1, 0))):
         axes[j,i].xaxis.set_visible(True)
         axes[i,j].yaxis.set_visible(True)
 

@@ -1,7 +1,8 @@
+from __future__ import absolute_import
 import numpy as np
 from GPy.core import GP
 from GPy import likelihoods,kern, util, models
-from likelihoods import MixedNoise_twoSide
+from .likelihoods import MixedNoise_twoSide
 
 class GPHeteroscedasticRegression_twoSided(GP):
     """

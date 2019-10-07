@@ -1,4 +1,6 @@
-import template
+from __future__ import absolute_import
+from __future__ import print_function
+from . import template
 
 class Searcher(template.Template):
 	"""A utility class for defining a templated search and preprocessing of data."""
@@ -16,7 +18,7 @@ class Searcher(template.Template):
 				searchKwargs[k] = kwargs[k]
 
 		if verbose:
-			print "Searching on",searchKwargs
+			print("Searching on",searchKwargs)
 
 		data = self.db.getData(**searchKwargs)
 		data = self.process(data)
