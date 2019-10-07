@@ -41,3 +41,5 @@ terminado==0.8.1
 tornado==6.0.3
 xlrd==0.9.3
 xlwt==1.0.0
+freetype-py==2.1.0
+pypng==0.0.20
