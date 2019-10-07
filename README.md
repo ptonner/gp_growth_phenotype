@@ -24,6 +24,8 @@ Code repository corresponding to paper "Detecting differential growth of microbi
 
 ## Examples
 
+For a basic example that does not use jupyter, look at example.py in the notebooks folder.
+
 Input to the B-GREAT method should come from two dataframes, *data* (n x p) and *meta* (p x k) where n, p, and k are:
 * n: number of time-points
 * p: number of time-course measurements (replicates)
