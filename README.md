@@ -12,7 +12,7 @@ Code repository corresponding to paper "Detecting differential growth of microbi
 * python (virtualenv recommended)
 
 #### Download this repository
-`git clone https://github.com/ptonner/gp_growth_phenotype.git`
+`git clone https://github.com/SirRujak/gp_growth_phenotype.git`
 
 #### Setup a local python environment (optional)
 `virtualenv .`
