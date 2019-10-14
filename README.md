@@ -12,7 +12,7 @@ Code repository corresponding to paper "Detecting differential growth of microbi
 * python (virtualenv recommended)
 
 #### Download this repository
-`git clone https://github.com/ptonner/gp_growth_phenotype.git`
+`git clone https://github.com/SirRujak/gp_growth_phenotype.git`
 
 #### Setup a local python environment (optional)
 `virtualenv .`
@@ -23,6 +23,8 @@ Code repository corresponding to paper "Detecting differential growth of microbi
 `pip install -r requirements.txt`
 
 ## Examples
+
+For a basic example that does not use jupyter, look at example.py in the notebooks folder.
 
 Input to the B-GREAT method should come from two dataframes, *data* (n x p) and *meta* (p x k) where n, p, and k are:
 * n: number of time-points

@@ -1,6 +1,9 @@
+from __future__ import absolute_import
 import numpy as np
 import scipy.stats
 import normal, GPy
+from six.moves import range
+from six.moves import zip
 
 class TestStatistic(object):
 
@@ -8,9 +11,9 @@ class TestStatistic(object):
 	def buildTestMatrix(n):
 		A = np.zeros((n-1,2*n))
 		A[:,0] = 1
-		A[range(n-1),range(1,n)] = -1
+		A[list(range(n-1)),list(range(1,n))] = -1
 		A[:,n] = -1
-		A[range(n-1),n+np.arange(1,n)] = 1
+		A[list(range(n-1)),n+np.arange(1,n)] = 1
 
 		return A
 

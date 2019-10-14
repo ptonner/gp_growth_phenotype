@@ -1,8 +1,11 @@
+from __future__ import absolute_import
+from __future__ import print_function
 import os,re,sys
 import getopt
 import numpy as np
 from gp_growth import utils
 import pandas as pd
+from six.moves import range
 
 hsal_dir = "data/raw/hsal_ko"
 plates = os.listdir(hsal_dir)
@@ -12,14 +15,14 @@ od = pd.DataFrame()
 
 for plate in plates:
 
-	print plate
+	print(plate)
 
 	try:
 	    key,data = utils.load_bioscreen(os.path.join(hsal_dir,plate),removeBlank=False)
-	except ValueError, e:
+	except ValueError as e:
 	    key,data = utils.load_bioscreen(os.path.join(hsal_dir,plate),convert=True,removeBlank=False)
 
-	print key.shape
+	print(key.shape)
 
 	if meta.shape[0] > 0:
 		meta = pd.concat((meta,key))
@@ -28,9 +31,9 @@ for plate in plates:
 		meta = key
 		od = data
 
-	print meta.shape,od.shape
+	print(meta.shape,od.shape)
 
-meta.index=range(meta.shape[0])
+meta.index=list(range(meta.shape[0]))
 od.columns=['time']+meta.index.tolist()
 
 combined = pd.merge(meta,od.T,left_index=True,right_index=True)

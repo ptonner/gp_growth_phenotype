@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 from tables import *
 
 METADATA_TYPES = ["str","int","float"]

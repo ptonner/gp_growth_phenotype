@@ -1,8 +1,12 @@
+from __future__ import absolute_import
+from __future__ import print_function
 import matplotlib.pyplot as plt
 import numpy as np
 import scipy, GPy, os, ast
 import pandas as pd
 import matplotlib as mpl
+from six.moves import range
+from six.moves import zip
 
 meta = data = parent = condition = control = None
 
@@ -14,13 +18,13 @@ Plotting
 
 def plotSamples(samples,x=None,color='b',colors=None,plotMethod=None,label=None,*args,**kwargs):
 	if x is None:
-		x = range(samples.shape[0])
+		x = list(range(samples.shape[0]))
 	if colors is None:
 		colors = [color]*samples.shape[1]
 	if plotMethod is None:
 		plotMethod = plt.plot
 
-	for i,c in zip(range(samples.shape[1]),colors):
+	for i,c in zip(list(range(samples.shape[1])),colors):
 		if not label is None:
 			plotMethod(x,samples[:,i],color=c,label=label,*args,**kwargs)
 			label = None
@@ -38,7 +42,7 @@ def setGlobals(_data=None,_meta=None,_parent=None,_condition=None,_control=None)
 		global data
 		data = _data
 
-		data.columns = range(data.shape[1])
+		data.columns = list(range(data.shape[1]))
 
 	if not _meta is None:
 		global meta
@@ -234,7 +238,7 @@ def testMutants(mutants,numPerm=10,timeThin=4,dims=[],nullDim='strain-regression
 	for i,m in enumerate(mutants):
 
 		if (i + 1)%10 == 0:
-			print 1.*i/len(mutants),m
+			print(1.*i/len(mutants),m)
 
 		select = ((meta.Condition==control) | (meta.Condition==condition)) & (meta.strain.isin([parent,m]))
 		if m in results:

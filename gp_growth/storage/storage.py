@@ -1,9 +1,14 @@
 #from tables import *
+from __future__ import absolute_import
+from __future__ import print_function
 from numpy import *
 import pandas as pd
 import os,sys
 from ..data.growth import GrowthData
-from datatypes import *
+from .datatypes import *
+import six
+from six.moves import range
+from six.moves import input
 
 def open(fname,overwrite=False,warn=True):
 	global h5file
@@ -12,8 +17,8 @@ def open(fname,overwrite=False,warn=True):
 		h5file = open_file(fname, mode = "r+", title = "Growth data")
 	else:
 		if os.path.isfile(fname) and warn:
-			print fname,"already exists, overwrite?"
-			select = raw_input()
+			print(fname,"already exists, overwrite?")
+			select = input()
 			if select.lower() != "y":
 				return
 		h5file = open_file(fname, mode = "w", title = "Growth data")
@@ -48,9 +53,9 @@ def createData(plate,data,plate_type=PLATE_TYPES[0]):
 		raise NotImplementedError("No implmentation for %s" % plate_type) 
 
 	row = table.row
-	for i in xrange(data.shape[0]):
+	for i in range(data.shape[0]):
 		row['time'] = data.iloc[i,0]
-		for j in xrange(1,data.shape[1]):
+		for j in range(1,data.shape[1]):
 			row['well%d'%(j-1)] = data.iloc[i,j]
 		row.append()
 
@@ -87,7 +92,7 @@ def createMetadata(plate,meta,types={}):
 			elif meta_row['type'] == METADATA_TYPES.index("float"):
 				try:
 					meta_row['val'] = float(meta_row['val'])
-				except ValueError, e:
+				except ValueError as e:
 					meta_row['val'] = nan
 			# else:
 			# 	meta_row['type'] = METADATA_TYPES[0]
@@ -209,11 +214,11 @@ def getWells(plates=None,verbose=False,**kwargs):
 						hits[ed['name']] = hits[ed['name']].union(w_temp)
 
 		# did we hit everything?
-		success = all([len(v)>0 for k,v in hits.iteritems()])
+		success = all([len(v)>0 for k,v in six.iteritems(hits)])
 
 		# add the intersection of all wells
 		if success:
-			keys = hits.keys()
+			keys = list(hits.keys())
 			if len(keys) > 0:
 				w = hits[keys[0]]
 				for k in keys[1:]:
@@ -228,7 +233,7 @@ def getWells(plates=None,verbose=False,**kwargs):
 
 		if verbose:
 			perc = (100.*count)/len(plates)
-			print "\rFinding wells...%.2f%% (%d wells)"% (perc,sum([len(x) for y,x in wells])),
+			print("\rFinding wells...%.2f%% (%d wells)"% (perc,sum([len(x) for y,x in wells])), end=' ')
 			sys.stdout.flush()
 
 	return wells
@@ -245,7 +250,7 @@ def getData(plates=None,verbose=False,logged=None,subtract=None,*args,**kwargs):
 	wells = getWells(plates,verbose,**kwargs)
 
 	if verbose:
-		print ""
+		print("")
 
 	# return _get_data(wells)
 	data = _generate_data(wells,verbose)
@@ -294,7 +299,7 @@ def _get_experimentalDesign(wells,verbose=False):
 					elif row['type'] == METADATA_TYPES.index("float"):
 						temp.iloc[where([w in array_indexes for w in w_ind])[0],col_index] = temp.iloc[where([w in array_indexes for w in w_ind])[0],col_index].astype(float)
 
-		new_indexes = range(ind,ind+len(w_ind))
+		new_indexes = list(range(ind,ind+len(w_ind)))
 		temp['well'] = new_indexes
 		temp['batch'] = plate._v_name
 
@@ -309,7 +314,7 @@ def _get_experimentalDesign(wells,verbose=False):
 
 		if verbose:
 			perc = (100.*count)/len(wells)
-			print "\rBuilding meta table...%.2f%%"%perc,
+			print("\rBuilding meta table...%.2f%%"%perc, end=' ')
 			sys.stdout.flush()
 
 	return key
@@ -352,13 +357,13 @@ def _get_data(wells,verbose=False):
 
 		if verbose:
 			perc = (100.*count)/len(wells)
-			print "\rBuilding data table...%.2f%%"%perc,
+			print("\rBuilding data table...%.2f%%"%perc, end=' ')
 			sys.stdout.flush()
 
 		# print plate._v_name,data.shape,temp.shape
 
 	if verbose:
-		print ""
+		print("")
 
 	key = _get_experimentalDesign(wells,verbose)
 	# count = 0

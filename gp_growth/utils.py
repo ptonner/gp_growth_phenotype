@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+from __future__ import print_function
 import numpy as np
 import pandas as pd
 import os
@@ -6,6 +8,9 @@ import time
 import datetime
 import re
 import matplotlib.pyplot as plt
+import six
+from six.moves import range
+from six.moves import zip
 
 ########################################################
 ## Plotting functions
@@ -14,7 +19,7 @@ import matplotlib.pyplot as plt
 def gauss_plot(x,mean,var=None,line_col="g",fill_col="g",label=""):
 
 	if not var is None and not mean.shape == var.shape:
-		print "Error mean and variance not same shape (",str(mean.shape),",",str(var.shape),")"
+		print("Error mean and variance not same shape (",str(mean.shape),",",str(var.shape),")")
 		return
 
 	plt.plot(x,mean,c=line_col,label=label)
@@ -74,7 +79,7 @@ def load_iron(data,mode=1,subsample=-1):
 	cols['replicate'] = 0
 	for exp,temp in group:
 		#temp['replicate'] = range(temp.shape[0])
-		cols.loc[group.groups[exp],'replicate'] = range(temp.shape[0])
+		cols.loc[group.groups[exp],'replicate'] = list(range(temp.shape[0]))
 		#print exp
 		#print temp
 
@@ -132,7 +137,7 @@ def metadata_condition_parse(cond,defaultValue=0):
 
 	cond = cond.str.rstrip(suffix)
 	split = cond.str.split(delim)
-	print split
+	print(split)
 	ret = pd.DataFrame(split.apply(lambda x: delim.join(x[:-1])))
 	ret = ret.rename(columns={'Condition':'media'})
 	ret[suffix] = split.apply( lambda x: float(x[-1].rstrip(suffix)) if len(x) > 1 and suffix in x[-1] else defaultValue )
@@ -163,7 +168,7 @@ def expand_row(time,od,params=None):
 	ret['od'] = od.values
 	
 	if not params is None:
-		for c,v in params.iteritems():
+		for c,v in six.iteritems(params):
 		    ret[c] = v
 
 	return ret
@@ -180,13 +185,13 @@ def expand_data_row(r):
 def parse_time(t):
 	try:
 		return time.struct_time(time.strptime(t,'%H:%M:%S'))
-	except ValueError, e:
+	except ValueError as e:
 		try:
 			t = time.strptime(t,'%d %H:%M:%S')
 			t = list(t)
 			t[2]+=1
 			return time.struct_time(t)
-		except ValueError, e:
+		except ValueError as e:
 			raise Exception("Time format unknown")
 
 def convert_encoding(f,encoding,outcoding):
@@ -198,8 +203,8 @@ def load_bioscreen(folder,convert=False,removeBlank=True,removeEmpty=True):
 
 	files = os.listdir(folder)
 
-	key_file = filter(lambda x: "key.xlsx" in x, files)
-	data_file = filter(lambda x: ".csv" in x, files)
+	key_file = [x for x in files if "key.xlsx" in x]
+	data_file = [x for x in files if ".csv" in x]
 
 	assert len(data_file)==1, "No data file or more than one data file: "+ str(data_file)
 	assert len(key_file)==1, "No key file or more than one key file: "+ str(key_file)
@@ -282,9 +287,9 @@ def plot_bioscreen(key,data,title_index=[0],fixed_y=True,output=""):
 
 	plt.figure(figsize=(5*4,groups.ngroups/5*4))
 
-	for i,val in enumerate(groups.groups.iteritems()):
+	for i,val in enumerate(six.iteritems(groups.groups)):
 		k,ind = val
-		print k,ind
+		print(k,ind)
 		ax = plt.subplot(groups.ngroups/5+1,5,i+1)
 		temp_key = groups.get_group(k)
 		temp_data = od.ix[:,temp_key.Well.astype(str)]
@@ -385,11 +390,11 @@ def expand_bioscreen(key,data):
 	return expand_data
 
 def load_all_bioscreen(folders,convert=False):
-	print folders[0]
+	print(folders[0])
 	key,data = load_bioscreen(folders[0],convert)
 	expand_data = expand_bioscreen(key,data)
 	for folder in folders[1:]:
-		print folder
+		print(folder)
 		key,data = load_bioscreen(folder,convert)
 		expand_data = expand_data.append(expand_bioscreen(key,data))
 
@@ -410,7 +415,7 @@ def convert_bioscreen_key(f,condition,**kwargs):
 		key['Heat Shift Time'] = 16
 		key['Media'] = np.where(key.Condition.str.contains("mev"),"CM+mev","CM")
 
-	for k,v in kwargs.iteritems():
+	for k,v in six.iteritems(kwargs):
 		key[k] = v
 
 	key.to_csv(f.rstrip(".xls")+".csv",index=False)

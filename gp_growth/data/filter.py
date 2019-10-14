@@ -1,4 +1,5 @@
-import growth
+from __future__ import absolute_import
+from . import growth
 
 class DataFilter(object):
     

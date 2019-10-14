@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 import numpy as np
 from scipy.optimize import curve_fit
 
@@ -26,7 +27,7 @@ def meanSquareError(time,od,model=gompertz):
 
 		predict = np.array([gompertz(t,*popt) for t in time])
 		mse = 1./n * sum(((od - predict)**2),)
-	except RuntimeError, e:
+	except RuntimeError as e:
 		mse = np.nan# 1./n * sum(((od - np.mean(od))**2),)
 
 	return mse
@@ -62,7 +63,7 @@ def optimize(time,od,model=gompertz,p0=None,cv=None):
 
 		predict = np.array([model(t,*popt) for t in test_time])
 		mse = 1./test_od.shape[0] * sum(((test_od - predict)**2),)
-	except RuntimeError, e:
+	except RuntimeError as e:
 		m,A,l = np.nan, np.nan, np.nan
 		mse = np.nan
 
